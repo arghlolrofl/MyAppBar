@@ -1,0 +1,36 @@
+﻿<Application x:Class="LinkBar.App"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:LinkBar.ViewModel"
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+			 mc:Ignorable="d"
+			 Startup="App_OnStartup">
+	<Application.Resources>
+		<ResourceDictionary>
+			<GridLength x:Key="GapSize">5</GridLength>
+			<GridLength x:Key="BorderSize">10</GridLength>
+			<GridLength x:Key="ValidationMessageRowHeight">20</GridLength>
+			<GridLength x:Key="StatusBarHeight">24</GridLength>
+			<GridLength x:Key="DefaultLength">30</GridLength>
+			<GridLength x:Key="SplitButtonLength">70</GridLength>
+			<GridLength x:Key="ButtonColumnWidth">100</GridLength>
+			<GridLength x:Key="ButtonRowHeight">27</GridLength>
+			<ResourceDictionary.MergedDictionaries>
+				<ResourceDictionary Source="Resources/MvvmLightDictionary.xaml" />
+
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Controls.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Fonts.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Colors.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/Steel.xaml" />
+				<ResourceDictionary Source="pack://application:,,,/MahApps.Metro;component/Styles/Accents/BaseDark.xaml" />
+
+				<!-- MetroDark Theme -->
+				<ResourceDictionary Source="Themes/MetroDark/MetroDark.MSControls.Core.Implicit.xaml" />
+				<ResourceDictionary Source="Themes/MetroDark/MetroDark.MSControls.Toolkit.Implicit.xaml" />
+			</ResourceDictionary.MergedDictionaries>
+		</ResourceDictionary>
+
+	</Application.Resources>
+
+</Application>

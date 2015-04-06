@@ -1,0 +1,229 @@
+﻿<mahApps:MetroWindow x:Class="LinkBar.View.LinkDialogWindow"
+					 xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+					 xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+					 xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+					 xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+					 xmlns:mahApps="clr-namespace:MahApps.Metro.Controls;assembly=MahApps.Metro"
+					 xmlns:ignore="http://www.ignore.com"
+					 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
+					 xmlns:command="http://www.galasoft.ch/mvvmlight"
+					 mc:Ignorable="d ignore"
+					 Width="1000"
+					 Height="400"
+					 BorderBrush="Gray"
+					 BorderThickness="1"
+					 ResizeMode="NoResize"
+					 ShowIconOnTitleBar="False"
+					 ShowMinButton="False"
+					 ShowMaxRestoreButton="False"
+					 ShowInTaskbar="False"
+					 Title="{Binding TitleBarText}"
+					 DataContext="{Binding Links, Source={StaticResource Locator}}">
+	<!-- EventToCommand commands of window -->
+	<i:Interaction.Triggers>
+		<i:EventTrigger EventName="Closed">
+			<command:EventToCommand Command="{Binding Mode=OneWay, Path=WindowClosedCommand}" />
+		</i:EventTrigger>
+	</i:Interaction.Triggers>
+	<Grid>
+		<Grid.ColumnDefinitions>
+			<ColumnDefinition Width="{StaticResource BorderSize}" />
+			<ColumnDefinition Width="*" />
+			<ColumnDefinition Width="{StaticResource ButtonColumnWidth}" />
+			<ColumnDefinition Width="{StaticResource ButtonColumnWidth}" />
+			<ColumnDefinition Width="{StaticResource ButtonColumnWidth}" />
+			<ColumnDefinition Width="70" />
+			<ColumnDefinition Width="30" />
+			<ColumnDefinition Width="{StaticResource GapSize}" />
+			<ColumnDefinition Width="200" />
+			<ColumnDefinition Width="{StaticResource GapSize}" />
+			<ColumnDefinition Width="30" />
+			<ColumnDefinition Width="{StaticResource BorderSize}" />
+		</Grid.ColumnDefinitions>
+		<Grid.RowDefinitions>
+			<RowDefinition Height="{StaticResource BorderSize}" />
+			<RowDefinition Height="{StaticResource DefaultLength}" />
+			<RowDefinition Height="{StaticResource GapSize}" />
+			<RowDefinition Height="{StaticResource DefaultLength}" />
+			<RowDefinition Height="{StaticResource GapSize}" />
+			<RowDefinition Height="{StaticResource DefaultLength}" />
+			<RowDefinition Height="{StaticResource GapSize}" />
+			<RowDefinition Height="{StaticResource DefaultLength}" />
+			<RowDefinition Height="*" />
+			<RowDefinition Height="{StaticResource GapSize}" />
+			<RowDefinition Height="{StaticResource ButtonRowHeight}" />
+			<RowDefinition Height="{StaticResource GapSize}" />
+			<RowDefinition Height="{StaticResource StatusBarHeight}" />
+		</Grid.RowDefinitions>
+		<ListBox ItemsSource="{Binding SelectedCategory.Links}"
+				 x:Name="LinkBox"
+				 SelectedItem="{Binding SelectedLink, Mode=TwoWay}"
+				 DisplayMemberPath="Name"
+				 Grid.Column="1"
+				 Grid.Row="1"
+				 Grid.RowSpan="10">
+		</ListBox>
+
+		<Border Grid.Column="6"
+				Grid.Row="3">
+			<Label Content="{Binding SelectedLink.Id}"
+				   BorderThickness="1"
+				   BorderBrush="#FF535353"
+				   HorizontalContentAlignment="Center"
+				   VerticalContentAlignment="Center" />
+		</Border>
+
+		<Label Content="Category"
+			   HorizontalContentAlignment="Right"
+			   Grid.Column="2"
+			   Grid.Row="1" />
+		<Label Content="Name"
+			   HorizontalContentAlignment="Right"
+			   Grid.Column="2"
+			   Grid.Row="3" />
+		<Label Content="Url"
+			   HorizontalContentAlignment="Right"
+			   Grid.Column="2"
+			   Grid.Row="5" />
+		<Label Content="Description"
+			   HorizontalContentAlignment="Right"
+			   Grid.Row="7"
+			   Grid.Column="2" />
+
+		<ComboBox ItemsSource="{Binding Categories}"
+				  DisplayMemberPath="Name"
+				  SelectedItem="{Binding SelectedCategory, Mode=TwoWay}"
+				  Grid.Column="3"
+				  Grid.Row="1"
+				  Grid.ColumnSpan="4" />
+		<TextBox Text="{Binding SelectedLink.Name, Mode=TwoWay, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+				 Margin="0,0,5,0"
+				 Grid.Column="3"
+				 Grid.Row="3"
+				 Grid.ColumnSpan="3">
+			<i:Interaction.Triggers>
+				<i:EventTrigger EventName="TextChanged">
+					<command:EventToCommand Command="{Binding Mode=OneWay, Path=IsDirtyCommand}" />
+				</i:EventTrigger>
+			</i:Interaction.Triggers>
+		</TextBox>
+		<TextBox Text="{Binding SelectedLink.Url, Mode=TwoWay, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+				 Grid.Column="3"
+				 Grid.Row="5"
+				 Grid.ColumnSpan="4">
+			<i:Interaction.Triggers>
+				<i:EventTrigger EventName="TextChanged">
+					<command:EventToCommand Command="{Binding Mode=OneWay, Path=IsDirtyCommand}" />
+				</i:EventTrigger>
+			</i:Interaction.Triggers>
+		</TextBox>
+		<TextBox TextWrapping="Wrap"
+				 Text="{Binding SelectedLink.Description, Mode=TwoWay, NotifyOnValidationError=True, UpdateSourceTrigger=PropertyChanged, ValidatesOnNotifyDataErrors=True}"
+				 Grid.Column="3"
+				 Grid.Row="7"
+				 Grid.ColumnSpan="4"
+				 Grid.RowSpan="2">
+			<i:Interaction.Triggers>
+				<i:EventTrigger EventName="TextChanged">
+					<command:EventToCommand Command="{Binding Mode=OneWay, Path=IsDirtyCommand}" />
+				</i:EventTrigger>
+			</i:Interaction.Triggers>
+		</TextBox>
+
+		<Button Command="{Binding CreateNewCommand}"
+				IsEnabled="{Binding CanCreateNew}"
+				Content="New"
+				Margin="0,0,2,0"
+				Grid.Column="3"
+				Grid.Row="10" />
+		<Button Command="{Binding DeleteCommand}" CommandParameter="{Binding SelectedLink}"
+				IsEnabled="{Binding CanDelete}"
+				Content="Delete"
+				Margin="1,0,1,0"
+				Grid.Column="4"
+				Grid.Row="10" />
+		<Button Command="{Binding SaveChangesCommand}" CommandParameter="{Binding SelectedLink}"
+				IsEnabled="{Binding CanSaveChanges}"
+				Content="Save"
+				Margin="2,0,0,0"
+				Grid.Column="5"
+				Grid.Row="10"
+				Grid.ColumnSpan="2" />
+		<Label Content="Tags"
+			   Grid.Column="8"
+			   Grid.Row="1"
+			   HorizontalContentAlignment="Center" />
+		<ListBox ItemsSource="{Binding SelectedLink.Tags}"
+				 SelectedItem="{Binding SelectedUsedTag, Mode=TwoWay}"
+				 DisplayMemberPath="Value"
+				 AllowDrop="True"
+				 Grid.Column="8"
+				 Grid.Row="2"
+				 Grid.RowSpan="6" />
+		<ListBox ItemsSource="{Binding AvailableTags}"
+				 SelectedItem="{Binding SelectedAvailableTag, Mode=TwoWay}"
+				 DisplayMemberPath="Value"
+				 AllowDrop="True"
+				 Margin="0,5,0,0"
+				 Grid.Column="8"
+				 Grid.Row="8" />
+		<TextBox Text="{Binding AdditionalTagsString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				 ToolTip="Comma delimited list of new tags"
+				 Grid.Column="8"
+				 Grid.Row="10">
+			<i:Interaction.Triggers>
+				<i:EventTrigger EventName="TextChanged">
+					<command:EventToCommand Command="{Binding Mode=OneWay, Path=IsDirtyCommand}" />
+				</i:EventTrigger>
+				<i:EventTrigger EventName="GotKeyboardFocus">
+					<command:EventToCommand Command="{Binding Mode=OneWay, Path=DeselectTagCommand}" />
+				</i:EventTrigger>
+			</i:Interaction.Triggers>
+		</TextBox>
+		<Button Content="Del"
+				IsEnabled="{Binding CanModifyTags}"
+				Command="{Binding RemoveSelectedTagCommand}"
+				HorizontalContentAlignment="Center"
+				Grid.Column="10"
+				Grid.Row="2"
+				Grid.RowSpan="6">
+			<Button.LayoutTransform>
+				<RotateTransform Angle="90" />
+			</Button.LayoutTransform>
+		</Button>
+		<Button Content="Add"
+				IsEnabled="{Binding CanModifyTags}"
+				Command="{Binding AddSelectedTagCommand}"
+				HorizontalContentAlignment="Center"
+				Margin="0,5,0,0"
+				Grid.Column="10"
+				Grid.Row="8">
+			<Button.LayoutTransform>
+				<RotateTransform Angle="90" />
+			</Button.LayoutTransform>
+		</Button>
+		<StatusBar Grid.Column="0"
+				   Grid.Row="12"
+				   Grid.ColumnSpan="12"
+				   Background="#FF2E2E2E">
+			<StatusBarItem HorizontalAlignment="Stretch">
+				<TextBlock Text="{Binding StatusText}"
+						   FontSize="11"
+						   MinWidth="200"
+						   Margin="5,0,0,0"
+						   FontFamily="{StaticResource MainFont}"
+						   Foreground="#FFCBCBCB" />
+			</StatusBarItem>
+			<Separator Foreground="#FF6A6A6A"
+					   Background="#FF6A6A6A" />
+			<StatusBarItem HorizontalContentAlignment="Stretch">
+				<mahApps:MetroProgressBar Value="{Binding ProgressValue}"
+										  Minimum="0"
+										  Maximum="100"
+										  Height="14"
+										  Foreground="#E512465F" />
+			</StatusBarItem>
+		</StatusBar>
+	</Grid>
+
+</mahApps:MetroWindow>
