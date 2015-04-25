@@ -22,7 +22,7 @@ namespace LinkBar.Contracts {
         Task<int> AddTagToLink(Link selectedLink, Tag selectedAvailableTag);
         Task<int> RemoveTagFromLink(Link selectedLink, Tag selectedUsedTag);
 
-        IEnumerable<Tag> AddNewTagsToLink(Link selectedLink, string[] newTags);
+        Task<int> AddNewTagsToLink(Link selectedLink, string[] newTags);
 
     }
 }

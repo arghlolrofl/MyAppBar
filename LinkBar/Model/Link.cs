@@ -66,6 +66,11 @@ namespace LinkBar.Model {
             get { return _Category; }
             set {
                 _Category = value;
+                if (value != null && value.Id > 0)
+                    CategoryId = value.Id;
+                else
+                    CategoryId = 0;
+
                 RaisePropertyChanged();
             }
         }

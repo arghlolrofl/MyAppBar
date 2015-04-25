@@ -178,12 +178,13 @@ namespace LinkBar.Contracts {
         protected DialogViewModelBase(ILifetimeScope lifetimeScope) {
             Autofac = lifetimeScope;
         }
+
         protected virtual async void OnSaveChangesCommand(ValidatableEntity entity) {
             DisableForm();
             Debug.WriteLine(" === DialogViewModelBase_OnSaveChangesCommand");
 
             int taskResult;
-            entity.Updated = DateTime.Now;
+            //entity.Updated = DateTime.Now;
 
             using (var repo = Autofac.Resolve<ILinkRepositoryAsync>()) {
                 if (entity.Id > 0) {
@@ -193,7 +194,7 @@ namespace LinkBar.Contracts {
                 } else {
                     //This is a simple add since we don't have it in db.
                     Debug.WriteLine("    Creating new entry ...");
-                    entity.Created = DateTime.Now;
+                    //entity.Created = DateTime.Now;
                     taskResult = await repo.CreateAsync(entity);
                     UpdateUi(GuiAction.Add);
                 }

@@ -1,7 +1,10 @@
 ﻿using System.ComponentModel;
+using System.Diagnostics;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
+using GalaSoft.MvvmLight.Messaging;
+using LinkBar.Messages.View;
 using LinkBar.ViewModel;
 using MahApps.Metro.Controls;
 using Microsoft.Practices.ServiceLocation;
@@ -12,6 +15,7 @@ namespace LinkBar {
     /// Interaction logic for MainWindow.xaml
     /// </summary>
     public partial class MainWindow : MetroWindow {
+        private readonly IMessenger _messenger;
 #if !DEBUG
         private readonly DockingManager _dockManager = null;
 #endif

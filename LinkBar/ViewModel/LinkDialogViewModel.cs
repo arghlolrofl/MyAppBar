@@ -22,25 +22,59 @@ namespace LinkBar.ViewModel {
         private List<Tag> _tagList;
 
         #region Tag Handling
-        #region bool CanAddTags Property
-        private bool _CanModifyTags;
-
+        #region bool CanModifyTags Property
+        private bool _CanAddTag;
         /// <summary>
         /// Sets and gets the Categories property.
         /// Changes to that property's value raise the PropertyChanged event. 
         /// </summary>
-        public bool CanModifyTags {
-            get { return _CanModifyTags; }
+        public bool CanAddTag {
+            get { return _CanAddTag; }
             set {
-                if (_CanModifyTags == value)
+                if (_CanAddTag == value)
                     return;
 
-                _CanModifyTags = value;
+                _CanAddTag = value;
                 RaisePropertyChanged();
             }
         }
         #endregion
 
+        #region bool CanCreateTags Property
+        private bool _CanCreateTags;
+        /// <summary>
+        /// Sets and gets the Categories property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool CanCreateTags {
+            get { return _CanCreateTags; }
+            set {
+                if (_CanCreateTags == value) return;
+
+                _CanCreateTags = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        #region bool CanRemoveTag Property
+        private bool _CanRemoveTag;
+        /// <summary>
+        /// Sets and gets the Categories property.
+        /// Changes to that property's value raise the PropertyChanged event. 
+        /// </summary>
+        public bool CanRemoveTag {
+            get { return _CanRemoveTag; }
+            set {
+                if (_CanRemoveTag == value) return;
+
+                _CanRemoveTag = value;
+                RaisePropertyChanged();
+            }
+        }
+        #endregion
+
+        
         #region RelayCommand AddSelectedTagCommand Property
         private RelayCommand _AddSelectedTagCommand;
         /// <summary>
@@ -83,7 +117,6 @@ namespace LinkBar.ViewModel {
         #endregion
 
         #region View Data
-
         #region ObservableCollection<Category> Categories Property
         private ObservableCollection<Category> _Categories = null;
 
@@ -168,6 +201,7 @@ namespace LinkBar.ViewModel {
 
                 _SelectedUsedTag = value;
                 RaisePropertyChanged();
+                ValidateForm();
             }
         }
         #endregion
@@ -210,7 +244,6 @@ namespace LinkBar.ViewModel {
             }
         }
         #endregion
-
         #endregion
 
 
@@ -249,15 +282,9 @@ namespace LinkBar.ViewModel {
         }
 
         protected override void UpdateUi(GuiAction action = GuiAction.Add) {
-            switch (action) {
-                case GuiAction.Add:
-                    SelectedCategory.Links.Add(SelectedLink);
-                    break;
-                case GuiAction.Remove:
-                    SelectedCategory.Links.Remove(SelectedLink);
-                    CreateNewCommand.Execute(null);
-                    break;
-            }
+            if (action == GuiAction.Remove)
+                CreateNewCommand.Execute(null);
+                    
         }
 
         protected override void ValidateForm() {
@@ -294,7 +321,9 @@ namespace LinkBar.ViewModel {
             }
 
             CanDelete = CanCreateNew = SelectedLink.Id >= 1;
-            CanModifyTags = SelectedLink.Id > 0 && (_SelectedAvailableTag != null || !String.IsNullOrEmpty(AdditionalTagsString));
+            CanCreateTags = SelectedLink.Id > 0;
+            CanAddTag = CanCreateTags && (_SelectedAvailableTag != null || !String.IsNullOrEmpty(AdditionalTagsString));
+            CanRemoveTag = CanCreateTags && SelectedUsedTag != null;
         }
 
         protected override void OnWindowClosedCommand() {
@@ -309,28 +338,33 @@ namespace LinkBar.ViewModel {
                 return;
             }
             CachedEntity = _SelectedLink.Clone();
-            SetAvailableTags();
+            refreshAvailableTags();
         }
 
         private void OnAddSelectedTagCommand() {
             using (var repo = Autofac.Resolve<ILinkRepositoryAsync>()) {
-                if (SelectedAvailableTag != null) { // add tag from listbox
-                    repo.AddTagToLink(SelectedLink, SelectedAvailableTag);
-
-                    SelectedLink.Tags.Add(SelectedAvailableTag);
-                    AvailableTags.Remove(SelectedAvailableTag);
-                } else { // add new tags from textbox
+                if (!String.IsNullOrEmpty(AdditionalTagsString)) { // add new tags from textbox
                     var newTags = AdditionalTagsString.Split(',');
                     for (var i = 0; i < newTags.Length; i++) 
                         newTags[i] = newTags[i].Trim();
                     
-                    var addedTags = repo.AddNewTagsToLink(SelectedLink, newTags);
+                    repo.AddNewTagsToLink(SelectedLink, newTags);
 
-                    foreach (var newTag in addedTags)
-                        SelectedLink.Tags.Add(newTag);
+                    foreach (var tag in SelectedLink.Tags) {
+                        if (!_tagList.Contains(tag))
+                            _tagList.Add(tag);
+                    }
 
-                }
-                AdditionalTagsString = String.Empty;
+                    AdditionalTagsString = String.Empty;
+                    SelectedAvailableTag = SelectedUsedTag = null;
+                } else if (SelectedAvailableTag != null) { // add tag from listbox
+                    try {
+                        repo.AddTagToLink(SelectedLink, SelectedAvailableTag);
+                        AvailableTags.Remove(SelectedAvailableTag);
+                    } catch (Exception ex) {
+                        throw ex;
+                    }
+                } 
             }
         }
 
@@ -338,13 +372,15 @@ namespace LinkBar.ViewModel {
             using (var repo = Autofac.Resolve<ILinkRepositoryAsync>()) {
                 repo.RemoveTagFromLink(SelectedLink, SelectedUsedTag);
             }
+
+            refreshAvailableTags();
         }
 
         private void OnDeselectTagCommand() {
             SelectedAvailableTag = null;
         }
 
-        private void SetAvailableTags() {
+        private void refreshAvailableTags() {
             if (SelectedLink.Tags.Count == 0) {
                 AvailableTags = new ObservableCollection<Tag>(_tagList);
             } else {
@@ -356,6 +392,7 @@ namespace LinkBar.ViewModel {
                     AvailableTags.Add(tag.Clone());
             }
         }
+
 
         /// <summary>
         /// Cleans up the viewmodel.

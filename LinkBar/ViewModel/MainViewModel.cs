@@ -7,6 +7,7 @@ using LinkBar.Contracts;
 using Microsoft.Practices.ServiceLocation;
 using UtilityLib.Contracts;
 using GalaSoft.MvvmLight.CommandWpf;
+using LinkBar.Messages.View;
 using LinkBar.Model;
 using LinkBar.View;
 
@@ -21,6 +22,7 @@ namespace LinkBar.ViewModel {
         private readonly ILifetimeScope _autofac;
 
         #region Window bindings
+
         #region bool IsWindowEnabled Property
         private bool _IsWindowEnabled = true;
         /// <summary>
@@ -114,7 +116,10 @@ namespace LinkBar.ViewModel {
                         IsWindowEnabled = false;
 
                         MessengerInstance.Register<Messages.View.LinkDialogClosed>(
-                            this, msg => { IsWindowEnabled = true; }
+                            this, msg => {
+                                IsWindowEnabled = true;
+                                _autofac.Resolve<IDisplayManager>().ActivateMainWindow();
+                            }
                         );
 
                         _autofac.Resolve<IDisplayManager>().ShowDialogWindow<LinkDialogWindow>();

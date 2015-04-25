@@ -8,8 +8,8 @@
 					 xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
 					 xmlns:command="http://www.galasoft.ch/mvvmlight"
 					 mc:Ignorable="d ignore"
-					 Width="1000"
-					 Height="400"
+					 Width="1200"
+					 Height="600"
 					 BorderBrush="Gray"
 					 BorderThickness="1"
 					 ResizeMode="NoResize"
@@ -168,6 +168,7 @@
 				 Grid.Column="8"
 				 Grid.Row="8" />
 		<TextBox Text="{Binding AdditionalTagsString, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}"
+				 IsEnabled="{Binding CanCreateTags}"
 				 ToolTip="Comma delimited list of new tags"
 				 Grid.Column="8"
 				 Grid.Row="10">
@@ -181,7 +182,7 @@
 			</i:Interaction.Triggers>
 		</TextBox>
 		<Button Content="Del"
-				IsEnabled="{Binding CanModifyTags}"
+				IsEnabled="{Binding CanRemoveTag}"
 				Command="{Binding RemoveSelectedTagCommand}"
 				HorizontalContentAlignment="Center"
 				Grid.Column="10"
@@ -192,7 +193,7 @@
 			</Button.LayoutTransform>
 		</Button>
 		<Button Content="Add"
-				IsEnabled="{Binding CanModifyTags}"
+				IsEnabled="{Binding CanAddTag}"
 				Command="{Binding AddSelectedTagCommand}"
 				HorizontalContentAlignment="Center"
 				Margin="0,5,0,0"

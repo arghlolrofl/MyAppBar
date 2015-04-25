@@ -23,7 +23,6 @@
 			<command:EventToCommand Command="{Binding WindowClosedCommand}" />
 		</i:EventTrigger>
 	</i:Interaction.Triggers>
-	
 	<!-- Custom title bar buttons -->
 	<controls:MetroWindow.RightWindowCommands>
 		<controls:WindowCommands>

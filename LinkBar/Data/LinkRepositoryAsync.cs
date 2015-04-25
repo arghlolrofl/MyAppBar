@@ -7,6 +7,8 @@ using System.Diagnostics;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using System.Windows.Documents.DocumentStructures;
+using Autofac;
 using LinkBar.Contracts;
 using LinkBar.Model;
 using UtilityLib.Mvvm;
@@ -14,9 +16,11 @@ using UtilityLib.Mvvm;
 namespace LinkBar.Data {
     public class LinkRepositoryAsync : ILinkRepositoryAsync {
         private readonly IDataServiceAsync _dataService;
+        private readonly ILifetimeScope _autofac;
 
-        public LinkRepositoryAsync(IDataServiceAsync dataService) {
+        public LinkRepositoryAsync(IDataServiceAsync dataService, ILifetimeScope lifetimeScope) {
             _dataService = dataService;
+            _autofac = lifetimeScope;
         }
 
         public async Task<Category> FetchCategory(int primaryKey) {
@@ -50,24 +54,35 @@ namespace LinkBar.Data {
         }
 
         public async Task<int> CreateAsync(ValidatableEntity entity) {
-            _dataService.Entry(entity).State = EntityState.Added;
-
             try {
+                var link = entity as Link;
+                if (link != null) {
+                    _dataService.Links.Attach(link);
+                }
+                _dataService.Entry(entity).State = EntityState.Added;
+                entity.Created = entity.Updated = DateTime.Now;
+
+
                 return await _dataService.SaveChangesAsync();
             } catch (DbEntityValidationException e) {
                 debugLogEntityValidationError(e);
                 throw;
+            } catch (Exception ex) {
+                throw ex;
             }
         }
 
         public async Task<int> UpdateAsync(ValidatableEntity entity) {
-            _dataService.Entry(entity).State = EntityState.Modified;
-
             try {
+                _dataService.Entry(entity).State = EntityState.Modified;
+                entity.Updated = DateTime.Now;
+
                 return await _dataService.SaveChangesAsync();
             } catch (DbEntityValidationException e) {
                 debugLogEntityValidationError(e);
                 throw;
+            } catch (Exception ex) {
+                throw ex;
             }
         }
 
@@ -84,16 +99,53 @@ namespace LinkBar.Data {
             }
         }
 
-        public Task<int> AddTagToLink(Link selectedLink, Tag selectedAvailableTag) {
-            throw new NotImplementedException();
+        public async Task<int> AddTagToLink(Link selectedLink, Tag selectedAvailableTag) {
+            try {
+                _dataService.Links.Attach(selectedLink);
+                _dataService.Tags.Attach(selectedAvailableTag);
+
+                selectedLink.Tags.Add(selectedAvailableTag);
+                return await _dataService.SaveChangesAsync();
+            } catch (Exception ex) {
+                throw ex;
+            }
         }
 
-        public Task<int> RemoveTagFromLink(Link SelectedLink, Tag SelectedUsedTag) {
-            throw new NotImplementedException();
+        public async Task<int> RemoveTagFromLink(Link SelectedLink, Tag SelectedUsedTag) {
+            try {
+                _dataService.Links.Attach(SelectedLink);
+                _dataService.Tags.Attach(SelectedUsedTag);
+
+                SelectedLink.Tags.Remove(SelectedUsedTag);
+                return await _dataService.SaveChangesAsync();
+            } catch (Exception ex) {
+                throw ex;
+            }
         }
 
-        public IEnumerable<Tag> AddNewTagsToLink(Link SelectedLink, string[] newTags) {
-            throw new NotImplementedException();
+        public async Task<int> AddNewTagsToLink(Link SelectedLink, string[] newTags) {
+            try {
+                List<Tag> newTagsList = new List<Tag>();
+
+                foreach (var newTagValue in newTags) {
+                    var newTag = _autofac.Resolve<Tag>();
+                    newTag.Value = newTagValue;
+
+                    var result = CreateAsync(newTag);
+                    Debug.WriteLine("Tag created: " + newTag.Value + "        Result: " + result);
+
+                    newTagsList.Add(newTag);
+                }
+
+                _dataService.Links.Attach(SelectedLink);
+
+                foreach (var tag in newTagsList)
+                    SelectedLink.Tags.Add(tag);
+
+                return await _dataService.SaveChangesAsync();
+            } catch (Exception ex) {
+                throw ex;
+            }
         }
 
         private void debugLogEntityValidationError(DbEntityValidationException e) {
